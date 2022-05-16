@@ -1,13 +1,10 @@
 import { useState, useEffect } from 'react'
-import { useProvider, useAccount, erc20ABI } from 'wagmi'
+import { useProvider, erc20ABI } from 'wagmi'
 import { Contract, BigNumber, utils } from 'ethers'
 const { formatEther } = utils
 
-export const useTokenBalance = (tokenAddress?: string) => {
+export const useTokenBalance = (tokenAddress?: string, userAddress?: string) => {
   const provider = useProvider()
-
-  const [{ data: accountData }] = useAccount()
-  const address = accountData?.address
 
   const [balance, setBalance] = useState<{
     value: BigNumber
@@ -16,7 +13,7 @@ export const useTokenBalance = (tokenAddress?: string) => {
 
   const [isLoading, setIsLoading] = useState(false)
 
-  const shouldFetch = !!address && !!tokenAddress
+  const shouldFetch = !!userAddress && !!tokenAddress
 
   useEffect(() => {
     if (!shouldFetch) {
@@ -29,7 +26,7 @@ export const useTokenBalance = (tokenAddress?: string) => {
       setIsLoading(true)
 
       tokenContract
-        .balanceOf(address)
+        .balanceOf(userAddress)
         .then((balance: BigNumber) => {
           const formatted = formatEther(balance)
           setBalance({
@@ -45,7 +42,7 @@ export const useTokenBalance = (tokenAddress?: string) => {
           setIsLoading(false)
         })
     }
-  }, [address, provider, shouldFetch, tokenAddress])
+  }, [userAddress, provider, shouldFetch, tokenAddress])
 
   return { balance, isLoading }
 }

@@ -1,10 +1,10 @@
 import { useTokenAllowance } from '@libs/hooks/useTokenAllowance'
 import { useTokenBalance } from '@libs/hooks/useTokenBalance'
 import { SetJsEthereumMainnetAddresses } from '@libs/setjs'
-import { BigNumber } from 'ethers'
+import { BigNumber, utils } from 'ethers'
 import React from 'react'
 import { Position as IPosition, SetDetails } from 'set.js/dist/types/src/types'
-import { erc20ABI, useContractWrite, useToken } from 'wagmi'
+import { erc20ABI, useAccount, useContractWrite, useToken } from 'wagmi'
 
 const POSITION_SPENDER_ADDR =
   SetJsEthereumMainnetAddresses.basicIssuanceModuleAddress
@@ -12,7 +12,10 @@ const POSITION_SPENDER_ADDR =
 const Position = ({ position }: { position: IPosition }) => {
   const allowanceData = useTokenAllowance(position.component)
 
-  const balanceData = useTokenBalance(position.component)
+  const [{ data: accountData }] = useAccount()
+  const address = accountData?.address
+
+  const balanceData = useTokenBalance(position.component, address)
 
   const [{ data }] = useToken({
     address: position.component,
@@ -57,7 +60,7 @@ const Position = ({ position }: { position: IPosition }) => {
 
               <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                 {/* {formatEther(position.unit)} */}
-                Unit: {position.unit.toString()}
+                Unit: {utils.formatUnits(position.unit, data?.decimals)}
               </p>
             </div>
 
