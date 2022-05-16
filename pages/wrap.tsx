@@ -95,6 +95,8 @@ const Wrap = () => {
         updateSetDetails()
       })
       .catch((error) => console.log(error))
+
+      setJSInstance.debtIssuance
   }
 
 
@@ -125,7 +127,7 @@ const Wrap = () => {
 
           <div className="px-6 py-2">
             <h4 className="text-2xl font-medium text-indigo-600 truncate">
-              Components:
+              Index Components Info:
             </h4>
             <PositionList positions={setDetails?.positions} />
           </div>
@@ -229,7 +231,7 @@ const Wrap = () => {
               <Listbox value={swapTo} onChange={setSwapTo}>
                 {({ open }) => (
                   <>
-                    <Listbox.Label className="block text-sm font-medium text-gray-700">To</Listbox.Label>
+                    <Listbox.Label className="block text-sm font-medium text-gray-700">Wrap To</Listbox.Label>
 
                     <div className="mt-1 relative w-52">
                       <Listbox.Button className="relative w-full bg-white border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">

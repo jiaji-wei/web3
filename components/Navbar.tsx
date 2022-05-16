@@ -15,13 +15,14 @@ export const Navbar = () => {
   const [{ data, loading: loadingConenctor }, connect] = useConnect()
   const [{ data: accountData }, disconnect] = useAccount()
 
-  const links = [{ name: 'home', link: '/' }].concat(
+  const links = [{ name: 'create', link: '/' }].concat(
     accountData
       ? [
           { name: 'dashboard', link: '/dashboard' },
           { name: 'trade', link: '/trade' },
           { name: 'wrap', link: '/wrap' },
-          { name: 'manage', link: '/trade' },
+          { name: 'farm', link: '/farm' },
+          { name: 'manage', link: '/manage' },
         ]
       : []
   )

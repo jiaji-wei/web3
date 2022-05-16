@@ -36,6 +36,8 @@ export const SetJsEthereumMainnetAddresses = {
   protocolViewerAddress: '0x8D5CF870354ffFaE0586B639da6D4E4F6C659c69',
   masterOracleAddress: '0x9378Ad514c00E4869656eE27b634d852DD48feAD',
 
+  wrappedSetModuleAddress: '',
+
   debtIssuanceModuleAddress: '0x338BEf3f37794dd199d6910E6109125D3eCa6048',
   debtIssuanceModuleV2Address: '0x3C0CC7624B1c408cF2cF11b3961301949f2F7820',
   navIssuanceModuleAddress: '0x33f6184b1695a8Fe344Ea6b7De11aA35A74Ec300',

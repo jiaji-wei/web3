@@ -35,7 +35,7 @@ const Trade = () => {
 
 
   const listOfTokens = useTokenList(
-    "https://raw.githubusercontent.com/SetProtocol/uniswap-tokenlist/main/set.tokenlist.json",
+    "https://gateway.ipfs.io/ipns/tokens.uniswap.org",
   );
 
   console.log('listOfTokens', listOfTokens)
