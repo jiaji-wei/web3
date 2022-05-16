@@ -20,6 +20,7 @@ export const Navbar = () => {
       ? [
           { name: 'dashboard', link: '/dashboard' },
           { name: 'trade', link: '/trade' },
+          { name: 'wrap', link: '/wrap' },
           { name: 'manage', link: '/trade' },
         ]
       : []

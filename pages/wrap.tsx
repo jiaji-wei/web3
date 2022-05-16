@@ -23,7 +23,7 @@ type TradeProps = {
 
 const SET_TOKEN_ADDR = '0x2948EA0De1eCeccC78FDA018A1036B2F81C20dcB'
 
-const Trade = () => {
+const Wrap = () => {
   const setJSInstance = useSetJS()
   const [{ data: accountData }] = useAccount()
   const [setDetails, setSetDetails] = useState<SetDetails>()
@@ -33,9 +33,11 @@ const Trade = () => {
   const [swapTo, setSwapTo] = useState<tokenInfo>()
   const [components, setComponent] = useState<TradeProps[]>()
 
+  // const [tokenList, setTokenList] = useState<tokenInfo[]>([])
+  // const [tokenListUrl, setTokenListUrl] = useState<string>("https://raw.githubusercontent.com/SetProtocol/uniswap-tokenlist/main/set.tokenlist.json")
 
   const listOfTokens = useTokenList(
-    "https://raw.githubusercontent.com/SetProtocol/uniswap-tokenlist/main/set.tokenlist.json",
+    "https://raw.githubusercontent.com/compound-finance/token-list/master/compound.tokenlist.json",
   );
 
   console.log('listOfTokens', listOfTokens)
@@ -77,6 +79,7 @@ const Trade = () => {
     updatePositions()
   }, [setDetails, updatePositions])
 
+
   const handleIssue = () => {
     if (!setJSInstance || !accountData?.address || !quantity) {
       return
@@ -115,7 +118,7 @@ const Trade = () => {
               {setDetails?.symbol ?? '...'}]
             </h4>
             <h4 className="text-xl font-medium text-gray-600 truncate">
-              Trade from one token to another for all participants in your
+              Wrap from one token to another for all participants in your
               Index.
             </h4>
           </div>
@@ -300,7 +303,7 @@ const Trade = () => {
                 className="items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 onClick={handleIssue}
               >
-                Swap
+                Wrap
               </button>
             </div>
           </div>
@@ -312,4 +315,4 @@ const Trade = () => {
   )
 }
 
-export default Trade
+export default Wrap
