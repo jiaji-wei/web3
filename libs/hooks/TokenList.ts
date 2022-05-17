@@ -19,7 +19,7 @@ export type tokenInfo = {
   logoURI?: string;
 }
 
-const useTokenList = (tokenListUri:string) => {
+const useTokenList = (tokenListUri: string, chainId = 1) => {
   const [tokenList, setTokenList] = useState<tokenInfo[]>();
 
   const _tokenListUri = tokenListUri || "https://gateway.ipfs.io/ipns/tokens.uniswap.org";
@@ -29,7 +29,14 @@ const useTokenList = (tokenListUri:string) => {
       try {
         const tokenList = await fetch(_tokenListUri);
         const tokenListJson = await tokenList.json();
-        const _tokenList = tokenListJson.tokens;
+        let _tokenList;
+        if (chainId) {
+          _tokenList = tokenListJson.tokens.filter(function (t) {
+            return t.chainId === chainId;
+          });
+        } else {
+          _tokenList = tokenListJson.tokens;
+        }
         setTokenList(_tokenList);
       } catch (e) {
         console.log(e);

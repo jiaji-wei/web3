@@ -21,8 +21,6 @@ type TradeProps = {
   Name: string
 }
 
-const SET_TOKEN_ADDR = '0x2948EA0De1eCeccC78FDA018A1036B2F81C20dcB'
-
 const Trade = () => {
   const setJSInstance = useSetJS()
   const [{ data: accountData }] = useAccount()
@@ -32,13 +30,13 @@ const Trade = () => {
   const [selected, setSelected] = useState<TradeProps>()
   const [swapTo, setSwapTo] = useState<tokenInfo>()
   const [components, setComponent] = useState<TradeProps[]>()
-
+  const [indexToken, setIndexToken] = useState('0xEc1d135B4979779Ce172262F216BfB3d89bEa41D')
 
   const listOfTokens = useTokenList(
     "https://gateway.ipfs.io/ipns/tokens.uniswap.org",
   );
 
-  console.log('listOfTokens', listOfTokens)
+  // console.log('listOfTokens', listOfTokens)
 
   const updateSetDetails = useCallback(async () => {
     if (!setJSInstance) {
@@ -46,13 +44,19 @@ const Trade = () => {
     }
 
     setJSInstance.setToken
-      .fetchSetDetailsAsync(SET_TOKEN_ADDR, MODULE_ADDRESSES)
+      .fetchSetDetailsAsync(indexToken, MODULE_ADDRESSES)
       .then((data) => {
         console.log('🚀 ~ file: dashboard.tsx ~ line 61 ~ .then ~ data', data)
         setSetDetails(data as SetDetails)
       })
-  }, [setJSInstance])
+  }, [setJSInstance, indexToken])
 
+  const handleIndexLoad = () => {
+    if (!setJSInstance) {
+      return
+    }
+    updateSetDetails()
+  }
 
   const updatePositions = useCallback(async () => {
     if (!setDetails) {
@@ -83,7 +87,7 @@ const Trade = () => {
     }
 
     setJSInstance.issuance
-      .issueAsync(SET_TOKEN_ADDR, parseEther(quantity), accountData.address)
+      .issueAsync(indexToken, parseEther(quantity), accountData.address)
       .then((data) => {
         console.log(
           '🚀 ~ file: dashboard.tsx ~ line 75 ~ setJSInstance.issuance.issueAsync ~ data',
@@ -109,6 +113,25 @@ const Trade = () => {
 
       <main className="pt-12">
         <div className="bg-white sm:rounded-md max-w-3xl mx-auto border p-6">
+          <div>
+            <div className='flex p-3 justify-center'>
+              <input
+                type="text"
+                name="price"
+                id="price"
+                className="focus:ring-indigo-500 focus:border-indigo-500 block  pl-7 pr-12 sm:text-sm border-gray-300 rounded-md"
+                placeholder={indexToken}
+                onChange={(e) => setIndexToken(e.target.value)}
+              />
+              <button
+                type="button"
+                className="items-center m-2 px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                onClick={handleIndexLoad}
+              >
+                Load
+              </button>
+            </div>
+          </div>
           <div className="px-6 py-2">
             <h4 className="text-2xl font-medium text-indigo-600 truncate">
               Index: [{setDetails?.name ?? '...'}] Index Symbol: [
