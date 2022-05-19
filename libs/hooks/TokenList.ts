@@ -19,7 +19,7 @@ export type tokenInfo = {
   logoURI?: string;
 }
 
-const useTokenList = (tokenListUri: string, chainId = 1) => {
+const useTokenList = (tokenListUri: string, chainId: number) => {
   const [tokenList, setTokenList] = useState<tokenInfo[]>();
 
   const _tokenListUri = tokenListUri || "https://gateway.ipfs.io/ipns/tokens.uniswap.org";

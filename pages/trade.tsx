@@ -2,7 +2,7 @@
 import Head from 'next/head'
 import React, { useCallback, useEffect, Fragment, useState } from 'react'
 import { Navbar } from '@components/Navbar'
-import { Position, SetDetails } from 'set.js/dist/types/src/types'
+import { Position, SetDetails, TradeQuote } from 'set.js/dist/types/src/types'
 import useSetJS from '@libs/setjs'
 import { MODULE_ADDRESSES } from '@libs/constants'
 import { parseEther } from 'ethers/lib/utils'
@@ -11,6 +11,7 @@ import { useAccount } from 'wagmi'
 import { Listbox, Transition } from '@headlessui/react'
 import { CheckIcon, SelectorIcon } from '@heroicons/react/solid'
 import useTokenList, { tokenInfo } from '@libs/hooks/TokenList'
+import { BigNumber } from 'ethers/lib/ethers';
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
@@ -26,14 +27,17 @@ const Trade = () => {
   const [{ data: accountData }] = useAccount()
   const [setDetails, setSetDetails] = useState<SetDetails>()
   const [quantity, setQuantity] = useState('0')
+  const [receiveAmount, setReceiveAmount] = useState('0')
 
   const [selected, setSelected] = useState<TradeProps>()
   const [swapTo, setSwapTo] = useState<tokenInfo>()
   const [components, setComponent] = useState<TradeProps[]>()
   const [indexToken, setIndexToken] = useState('0xEc1d135B4979779Ce172262F216BfB3d89bEa41D')
 
+  const [tradeData, setTradeData] = useState<TradeQuote>()
   const listOfTokens = useTokenList(
     "https://gateway.ipfs.io/ipns/tokens.uniswap.org",
+    137
   );
 
   // console.log('listOfTokens', listOfTokens)
@@ -65,7 +69,6 @@ const Trade = () => {
     setComponent([] as TradeProps[])
 
     const coms = [] as TradeProps[]
-    console.log('coms', coms)
     for (let i = 0; i < setDetails.positions.length; i++) {
       const symbol = await setJSInstance?.erc20.getTokenSymbolAsync(setDetails.positions[i].component) ?? ''
       coms.push({ Position: setDetails.positions[i], Name: symbol })
@@ -81,23 +84,51 @@ const Trade = () => {
     updatePositions()
   }, [setDetails, updatePositions])
 
-  const handleIssue = () => {
-    if (!setJSInstance || !accountData?.address || !quantity) {
+  useEffect(() => {
+    if (!setJSInstance) {
       return
     }
+    if (!selected || !swapTo || !accountData?.address) {
+      return
+    }
+    const feePercentage = 0.001
+    const feeRecipient = "0x70AFF9c2a064B2B1614F30407c96e8876acA8B63"
+    console.log("222:", quantity, selected?.Position.component, swapTo?.address, 18, 18, "1", "", setJSInstance.setToken, feePercentage, feeRecipient)
+    setJSInstance.trade.
+      fetchTradeQuoteAsync(selected?.Position.component, swapTo?.address, 18, 18,
+        quantity, indexToken, setJSInstance.setToken,
+        undefined, undefined, undefined, feePercentage, feeRecipient).then((data) => {
+          console.log(
+            '🚀 ~ file: dashboard.tsx ~ line 75 ~ setJSInstance.issuance.issueAsync ~ data',
+            data
+          )
+          setTradeData(data)
+          if (data) {
+            setReceiveAmount(data.display.toTokenDisplayAmount)
+          }
+        })
+      .catch((error) => console.log(error))
+  }, [accountData?.address, indexToken, selected, setJSInstance, swapTo, quantity])
 
-    setJSInstance.issuance
-      .issueAsync(indexToken, parseEther(quantity), accountData.address)
+
+  const handleTrade = () => {
+    if (!setJSInstance) {
+      return
+    }
+    if (!selected || !swapTo || !accountData?.address || !tradeData) {
+      return
+    }
+    setJSInstance.trade
+      .tradeAsync(indexToken, "ZeroExApiAdapterV5", selected?.Position.component, BigNumber.from(tradeData?.fromTokenAmount), swapTo.address, parseEther("0"), tradeData.calldata)
       .then((data) => {
         console.log(
-          '🚀 ~ file: dashboard.tsx ~ line 75 ~ setJSInstance.issuance.issueAsync ~ data',
+          '🚀 ~ file: dashboard.tsx ~ line 132 ~ setJSInstance.trade.tradeAsync ~ data',
           data
         )
-        updateSetDetails()
+        // updateSetDetails()
       })
       .catch((error) => console.log(error))
   }
-
 
 
   return (
@@ -315,13 +346,13 @@ const Trade = () => {
               <input
                 type="number"
                 className="focus:ring-indigo-500 focus:border-indigo-500 block sm:text-sm border-gray-300 rounded-md w-24"
-                placeholder="0.1"
-                onChange={(e) => setQuantity(e.target.value)}
+                placeholder={receiveAmount}
+                onChange={(e) => setReceiveAmount(e.target.value)}
               />
               <button
                 type="button"
                 className="items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                onClick={handleIssue}
+                onClick={handleTrade}
               >
                 Swap
               </button>

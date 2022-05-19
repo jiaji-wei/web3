@@ -1,10 +1,15 @@
-import React, { useState } from 'react'
+import React, { Fragment, useState } from 'react'
 import { utils, BigNumber } from 'ethers'
 import TokenDetail from './TokenDetail'
 import useSetJS from '@libs/setjs'
 import { useAccount } from 'wagmi'
 import { useCoinGecko } from '@libs/hooks/useCoinGecko'
 import { MODULE_ADDRESSES } from '@libs/constants'
+
+import useTokenList, { tokenInfo } from '@libs/hooks/TokenList'
+import { Listbox, Transition } from '@headlessui/react'
+import { CheckIcon, SelectorIcon } from '@heroicons/react/outline'
+import classNames from 'classnames'
 
 const { isAddress } = utils
 
@@ -30,9 +35,12 @@ export default function Create() {
   const [tokenSet, setTokenSet] = useState<Token[]>([])
   const [setData, setSetData] = useState<Set>()
 
-  const [addContractData, setAddContractData] = useState({
-    contractAddress: '',
-  })
+  const [addContractData, setAddContractData] = useState<tokenInfo>()
+
+  const listOfTokens = useTokenList(
+    "https://unpkg.com/quickswap-default-token-list@1.2.32/build/quickswap-default.tokenlist.json",
+    137
+  );
 
   const handleRemoveTokenClick = (newToken: Token) => {
     const newTokenSet = tokenSet.filter(
@@ -41,17 +49,22 @@ export default function Create() {
     setTokenSet(newTokenSet)
   }
 
-  const handleAddTokenChange: React.ChangeEventHandler<HTMLInputElement> = (
-    e
-  ) => {
-    e.preventDefault()
-    const { value } = e.target
-    setAddContractData({ contractAddress: value })
-  }
+  // const handleAddTokenChange: React.ChangeEventHandler<HTMLInputElement> = (
+  //   e
+  // ) => {
+  //   e.preventDefault()
+  //   const { value } = e.target
+  //   setAddContractData({ contractAddress: value })
+  // }
 
   const handleAddTokenSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault()
-    const { contractAddress } = addContractData
+
+    if (!addContractData) {
+      return
+    }
+
+    const contractAddress = addContractData?.address
 
     if (
       contractAddress &&
@@ -175,41 +188,99 @@ export default function Create() {
             </div>
             <div className="py-1">
               <form
-                className="space-y-8 divide-y divide-gray-200"
+                className="flex justify-center flex-col space-y-8 divide-y divide-gray-200"
                 onSubmit={handleAddTokenSubmit}
               >
                 <div className="space-y-8 divide-y divide-gray-200">
-                  <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-                    <div className="sm:col-span-4">
+                  <div className="mt-6 grid grid-cols-2 gap-y-6 gap-x-4 sm:grid-cols-6">
+                    <div className="sm:col-span-2">
+
                       <label
                         htmlFor="token"
                         className="block text-sm font-medium text-gray-700"
                       >
                         Token address
                       </label>
-                      <div className="flex items-center">
-                        <input
-                          type="text"
-                          name="token"
-                          id="token"
-                          autoComplete="token"
-                          className="flex-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full min-w-0 rounded sm:text-sm border-gray-300"
-                          onChange={handleAddTokenChange}
-                        />
-                        <button
-                          type="submit"
-                          className="ml-1 bg-indigo-500 text-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                        >
-                          Add
-                        </button>
-                      </div>
+
+                      <Listbox value={addContractData} onChange={setAddContractData}>
+                        {({ open }) => (
+                          <>
+                            {/* <Listbox.Label className="block text-sm font-medium text-gray-700">To</Listbox.Label> */}
+
+                            <div className="mt-1 relative w-52">
+                              <Listbox.Button className="relative w-full bg-white border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                <span className="flex items-center">
+                                  <img src={addContractData?.logoURI} alt="" className="flex-shrink-0 h-6 w-6 rounded-full" />
+                                  <span className="ml-3 block truncate">{addContractData?.symbol}</span>
+                                </span>
+                                <span className="ml-3 absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                                  <SelectorIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                                </span>
+                              </Listbox.Button>
+
+                              <Transition
+                                show={open}
+                                as={Fragment}
+                                leave="transition ease-in duration-100"
+                                leaveFrom="opacity-100"
+                                leaveTo="opacity-0"
+                              >
+                                <Listbox.Options className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-56 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                                  {listOfTokens?.map((token) => (
+                                    <Listbox.Option
+                                      key={token.address}
+                                      className={({ active }) =>
+                                        classNames(
+                                          active ? 'text-white bg-indigo-600' : 'text-gray-900',
+                                          'cursor-default select-none relative py-2 pl-3 pr-9'
+                                        )
+                                      }
+                                      value={token}
+                                    >
+                                      {({ selected, active }) => (
+                                        <>
+                                          <div className="flex items-center">
+                                            <img src={token.logoURI} alt="" className="flex-shrink-0 h-6 w-6 rounded-full" />
+                                            <span
+                                              className={classNames(selected ? 'font-semibold' : 'font-normal', 'ml-3 block truncate')}
+                                            >
+                                              {token.symbol}
+                                            </span>
+                                          </div>
+
+                                          {selected ? (
+                                            <span
+                                              className={classNames(
+                                                active ? 'text-white' : 'text-indigo-600',
+                                                'absolute inset-y-0 right-0 flex items-center pr-4'
+                                              )}
+                                            >
+                                              <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                                            </span>
+                                          ) : null}
+                                        </>
+                                      )}
+                                    </Listbox.Option>
+                                  ))}
+                                </Listbox.Options>
+                              </Transition>
+                            </div>
+                          </>
+                        )}
+                      </Listbox>
+
+                      <button
+                        type="submit"
+                        className="ml-1 mt-5 bg-indigo-500 text-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                      >
+                        Add
+                      </button>
                     </div>
                   </div>
                 </div>
               </form>
             </div>
           </div>
-
           <div className="">
             <div className="flex gap-4">
               <div className="text-center font-normal mr-4 py-6">
@@ -300,7 +371,7 @@ export default function Create() {
             </button>
           </form>
         </div>
-      </div>
-    </div>
+      </div >
+    </div >
   )
 }

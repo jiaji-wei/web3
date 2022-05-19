@@ -55,13 +55,15 @@ const Position = ({ position }: { position: IPosition }) => {
               <p className="text-sm text-gray-600">Token: {data?.symbol} </p>
 
               <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                balance: {balanceData.balance?.formatted}
-              </p>
-
-              <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                 {/* {formatEther(position.unit)} */}
                 Unit: {utils.formatUnits(position.unit, data?.decimals)}
               </p>
+
+              <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                wallet balance: {balanceData.balance?.formatted}
+              </p>
+
+
             </div>
 
             {needsApproval && (

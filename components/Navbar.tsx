@@ -15,15 +15,18 @@ export const Navbar = () => {
   const [{ data, loading: loadingConenctor }, connect] = useConnect()
   const [{ data: accountData }, disconnect] = useAccount()
 
-  const links = [{ name: 'create', link: '/' }].concat(
+  const links = [
+    { name: 'buy', link: '/buy' },
+    { name: 'create', link: '/' }
+  ].concat(
     accountData
       ? [
-          { name: 'dashboard', link: '/dashboard' },
-          { name: 'trade', link: '/trade' },
-          { name: 'wrap', link: '/wrap' },
-          { name: 'farm', link: '/farm' },
-          { name: 'manage', link: '/manage' },
-        ]
+        { name: 'dashboard', link: '/dashboard' },
+        { name: 'trade', link: '/trade' },
+        { name: 'wrap', link: '/wrap' },
+        { name: 'farm', link: '/farm' },
+        { name: 'manage', link: '/manage' },
+      ]
       : []
   )
 
@@ -64,9 +67,8 @@ export const Navbar = () => {
         </div>
 
         <ul
-          className={`flex items-center gap-4 bg-white md:z-auto z-[-1] left-0 w-full md:w-auto md:pl-0 pl-9 transition-all duration-500 ease-in ${
-            open ? 'top-20 ' : 'top-[-490px]'
-          }`}
+          className={`flex items-center gap-4 bg-white md:z-auto z-[-1] left-0 w-full md:w-auto md:pl-0 pl-9 transition-all duration-500 ease-in ${open ? 'top-20 ' : 'top-[-490px]'
+            }`}
         >
           {isMounted && !!accountData && <NetworkSwitcher />}
 
@@ -117,11 +119,10 @@ export const Navbar = () => {
                       <Menu.Item key={connector.id}>
                         {({ active }) => (
                           <button
-                            className={`${
-                              active
-                                ? 'bg-violet-500 text-white'
-                                : 'text-gray-900'
-                            } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                            className={`${active
+                              ? 'bg-violet-500 text-white'
+                              : 'text-gray-900'
+                              } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
                             onClick={() => connect(connector)}
                             disabled={isMounted && !connector.ready}
                           >

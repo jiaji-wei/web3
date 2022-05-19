@@ -37,9 +37,10 @@ const Wrap = () => {
 
   const listOfTokens = useTokenList(
     "https://raw.githubusercontent.com/compound-finance/token-list/master/compound.tokenlist.json",
+    1
   );
 
-  console.log('listOfTokens', listOfTokens)
+  // console.log('listOfTokens', listOfTokens)
 
   const updateSetDetails = useCallback(async () => {
     if (!setJSInstance) {
@@ -62,7 +63,6 @@ const Wrap = () => {
     setComponent([] as TradeProps[])
 
     const coms = [] as TradeProps[]
-    console.log('coms', coms)
     for (let i = 0; i < setDetails.positions.length; i++) {
       const symbol = await setJSInstance?.erc20.getTokenSymbolAsync(setDetails.positions[i].component) ?? ''
       coms.push({ Position: setDetails.positions[i], Name: symbol })
